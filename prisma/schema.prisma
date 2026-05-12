@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// NextAuth 필수 모델
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// 앱 모델
+model User {
+  id             String   @id @default(cuid())
+  name           String?
+  email          String?  @unique
+  emailVerified  DateTime?
+  image          String?
+  password       String?
+  // 날씨 임계값 (사용자 커스텀 설정)
+  rainThreshold  Int      @default(40)   // 강수확률 % 이상
+  tempThreshold  Float    @default(5.0)  // 최저기온 °C 이하
+  dustThreshold  Int      @default(81)   // 미세먼지 μg/m³ 이상
+  // 위치 정보
+  locationNx    Int?
+  locationNy    Int?
+  locationName  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts     Account[]
+  sessions     Session[]
+  weeklyItems  WeeklyItem[]
+  schedules    Schedule[]
+  weatherRules WeatherRule[]
+  dailyChecks  DailyCheck[]
+}
+
+model WeeklyItem {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  dayOfWeek Int      // 0=일, 1=월, 2=화, 3=수, 4=목, 5=금, 6=토
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dayOfWeek])
+}
+
+model Schedule {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items ScheduleItem[]
+
+  @@index([userId, date])
+}
+
+model ScheduleItem {
+  id         String   @id @default(cuid())
+  scheduleId String
+  name       String
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  schedule Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+}
+
+enum WeatherRuleType {
+  RAIN
+  COLD
+  DUST
+}
+
+model WeatherRule {
+  id        String          @id @default(cuid())
+  userId    String
+  type      WeatherRuleType
+  itemName  String
+  isActive  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+}
+
+enum CheckSource {
+  WEEKLY
+  WEATHER
+  SCHEDULE
+  MANUAL
+}
+
+model DailyCheck {
+  id         String      @id @default(cuid())
+  userId     String
+  date       DateTime    @db.Date
+  itemName   String
+  source     CheckSource
+  sourceId   String?     // WeeklyItem / Schedule / WeatherRule ID
+  isChecked  Boolean     @default(false)
+  order      Int         @default(0)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  // sourceId 기반 중복 방지: 같은 날 같은 원본 아이템은 한 번만 생성
+  @@unique([userId, date, sourceId])
+}

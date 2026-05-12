@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\dltkd\\\\Projects\\\\mybag-t\\\\src\\\\lib\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\dltkd\\\\Projects\\\\mybag-t\\\\src\\\\types\")"
+    ]
+  }
+}
