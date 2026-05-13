@@ -465,12 +465,12 @@ export default function WeeklySettingsClient() {
   const [copyFromDay, setCopyFromDay] = useState<number | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  function handleMultiAdded(days: number[]) {
+  function handleMultiAdded(_days: number[]) {
     setMultiAddDays(null);
     setRefreshKey((k) => k + 1);
   }
 
-  function handleCopied(toDays: number[]) {
+  function handleCopied(_toDays: number[]) {
     setRefreshKey((k) => k + 1);
   }
 

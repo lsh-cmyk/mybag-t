@@ -22,7 +22,7 @@ export default function WeatherBanner({ onWeatherLoaded }: { onWeatherLoaded?: (
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [triggered, setTriggered] = useState<TriggeredItem[]>([]);
   const [error, setError] = useState("");
-  const [applied, setApplied] = useState(false);
+  const [applied, setApplied] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   useEffect(() => {
     async function load() {

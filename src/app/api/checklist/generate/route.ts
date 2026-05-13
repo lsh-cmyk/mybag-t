@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 // 오늘 체크리스트 자동 생성 (요일 + 일정 기반)
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

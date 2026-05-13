@@ -35,7 +35,7 @@ const SOURCE_COLORS: Record<CheckItem["source"], string> = {
   MANUAL: "bg-stone-100 text-stone-600",
 };
 
-export default function ChecklistPage({ user }: { user: User }) {
+export default function ChecklistPage({ user: _user }: { user: User }) {
   const [items, setItems] = useState<CheckItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [newItem, setNewItem] = useState("");
